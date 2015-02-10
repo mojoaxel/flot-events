@@ -9,7 +9,7 @@
  *      events: {
  *          levels: int   // number of hierarchy levels
  *          data: [],     // array of event objects
- *          types: []     // array of icons
+ *          types: []     // array of colors and levels
  *          xaxis: int    // the x axis to attach events to
  *      }
  *  };
@@ -29,26 +29,17 @@
  *
  * types: [
  *     {
- *         eventType: "eventType",
+ *         eventType: "eventType",       // name [a-zA-Z0-9_]
  *         level: hierarchicalLevel,
- *         icon: { 
-               image: "eventImage1.png",
- *             width: 10,
- *             height: 10
- *         }
+ *         color: #F00
  *     }
  *  ]
  *
  * @author Joel Oughton
+ * @author Alexander Wunschik
  */
 (function($){
     function init(plot){
-        var DEFAULT_ICON = { 
-            image: "../src/red-pointer.png",
-            width: 19,
-            height: 10
-        };
-        
         var _events = [], _types, _eventsEnabled = false, lastRange;
         
         plot.getEvents = function(){
@@ -119,6 +110,9 @@
             _drawEvents();
         });
         
+        /**
+         * TODO
+         */
         var _drawEvents = function() {
             var o = plot.getPlotOffset();
             var pleft = o.left, pright = plot.width() - o.right;
@@ -138,6 +132,9 @@
             _overlaps();
         };
         
+        /**
+         * TODO
+         */
         var _withinHierarchy = function(level, levelRange){
             var range = {};            
 
@@ -155,6 +152,9 @@
             return false;
         };
         
+        /**
+         * TODO
+         */
         var _clearEvents = function(){            
             $.each(_events, function(index, val) {
                 val.visual().clear();
@@ -163,6 +163,9 @@
             _events = [];
         };
         
+        /**
+         * TODO
+         */
         var _updateEvents = function() {
             var o = plot.getPlotOffset(), left, top;
             var xaxis = plot.getXAxes()[plot.getOptions().events.xaxis - 1];
@@ -175,29 +178,31 @@
             });
         };
         
+        /**
+         * TODO
+         */
         var _showTooltip = function(x, y, event){
-            var tooltip = $('<div id="tooltip" class=""></div>').appendTo('body').fadeIn(200);
+            var tooltip = $('<div id="tooltip" class="'+event.eventType+'"></div>').appendTo('body').fadeIn(200);
             
             $('<div id="title">' + event.title + '</div>').appendTo(tooltip);
             $('<div id="type">Type: ' + event.eventType + '</div>').appendTo(tooltip);
             $('<div id="description">' + event.description + '</div>').appendTo(tooltip);
             
             tooltip.css({
-                top: y - tooltip.height() - 5,
+                top: y+20,// - tooltip.height() - 5,
                 left: x
             });
         };
         
+        /**
+         * TODO
+         */
         var _setupEvents = function(events){
-        
             $.each(events, function(index, event){
                 var level = (plot.getOptions().events.levels == null || !_types || !_types[event.eventType]) ? 0 : _types[event.eventType].level;
                 
                 if (level > plot.getOptions().events.levels) {
-                    throw "A type's level has exceeded the maximum. Level=" +
-                    level +
-                    ", Max levels:" +
-                    (plot.getOptions().events.levels);
+                    throw "A type's level has exceeded the maximum. Level=" + level + ", Max levels:" + (plot.getOptions().events.levels);
                 }
                 
                 _events.push(new VisualEvent(event, _buildDiv(event), level));
@@ -206,6 +211,9 @@
             _events.sort(compareEvents);
         };
         
+        /**
+         * TODO
+         */
         var _identicalStarts = function() {
             var ranges = [], range = {}, event, prev, offset = 0;
 
@@ -244,6 +252,9 @@
             });
         };
         
+        /**
+         * TODO
+         */
         var _overlaps = function() {
             var xaxis = plot.getXAxes()[plot.getOptions().events.xaxis - 1];
             var range, diff, cmid, pmid, left = 0, right = -1;
@@ -293,85 +304,119 @@
             }
         };
         
+        /**
+         * TODO
+         */
         var _buildDiv = function(event){
             //var po = plot.pointOffset({ x: 450, y: 1});
             var container = plot.getPlaceholder(), o = plot.getPlotOffset(), yaxis, 
             xaxis = plot.getXAxes()[plot.getOptions().events.xaxis - 1], axes = plot.getAxes();
-            var top, left, div, icon, level, drawableEvent;
+            var top, left, div, level, color, drawableEvent;
             
             // determine the y axis used
             if (axes.yaxis && axes.yaxis.used) yaxis = axes.yaxis;
             if (axes.yaxis2 && axes.yaxis2.used) yaxis = axes.yaxis2;
             
-            // use the default icon and level
-            if (_types == null || !_types[event.eventType] || !_types[event.eventType].icon) {
-                icon = DEFAULT_ICON;
+            // map the eventType to a types object
+            var eventTypeId = -1;
+        	$.each(_types, function(index, type){
+        		if (type.eventType == event.eventType) {
+        			eventTypeId = index;
+        			return false;
+        		}
+        	});
+            
+            // use the default level
+            if (_types == null || !_types[eventTypeId] || !_types[eventTypeId].level) {
                 level = 0;
             } else {
-                icon = _types[event.eventType].icon;
-                level = _types[event.eventType].level;
+                level = _types[eventTypeId].level;
             }
             
-            div = $('<img style="position:absolute;" src="' +
-            icon.image +
-            '">').appendTo(container);
+            if (_types == null || !_types[eventTypeId] || !_types[eventTypeId].color) {
+                color = '#666';
+            } else {
+                color = _types[eventTypeId].color;
+            }
             
-            top = o.top + plot.height() - icon.height;
-            left = xaxis.p2c(event.min) + o.left - icon.width / 2;
+            line = $('<div class="events_line"></div>').appendTo(container);
+            marker = $('<div class="events_marker"></div>').appendTo(line);
             
-            div.css({
-                left: left + 'px',
-                top: top,
-                width: icon.width,
-                height: icon.height
+            top = o.top + plot.height();
+            left = xaxis.p2c(event.min) + o.left;
+            
+            line.css({
+            	"position": "absolute",
+            	"border-left": "1px dashed " + color,
+            	"opacity": 0.8,
+                "left": left + 'px',
+                "top": 0,// top,
+                "width": "1px",
+                "height": plot.height()
             });
-            div.hide();
-            div.data({
+            line.hide();
+            
+            marker.css({
+            	"position": "absolute",
+            	//"background-color": color,
+                "left": "-10px",
+                "top": "-0px",
+                //"width": "20px",
+                //"height": "20px",
+	            //"border-radius": "20px",
+	            
+	            "width": 0,
+        		"height": 0, 
+        		"border-left": "10px solid transparent",
+        		"border-right": "10px solid transparent",
+        	    "border-top": "10px solid " + color,
+            });
+            marker.data({
                 "event": event
             });
-            div.hover(
-            // mouseenter
-            function(){
-                var pos = $(this).offset();
-                
-                /*// check if the mouse is not already over the event
-                if ($(this).data("bouncing") == false || $(this).data("bouncing") == undefined) {
-                
-                    // check the div is not already bouncing
-                    if ($(this).position().top == $(this).data("top")) {
-                        $(this).effect("bounce", {
-                            times: 3
-                        }, 300);
-                    }
-                    
-                    $(this).data("bouncing", true);
-                    _showTooltip(pos.left + $(this).width() / 2, pos.top, $(this).data("event"));
-                }*/
-                
-                _showTooltip(pos.left + $(this).width() / 2, pos.top, $(this).data("event"));
-                
-                if (event.min != event.max) {
-                    plot.setSelection({
-                        xaxis: {
-                            from: event.min,
-                            to: event.max
-                        },
-                        yaxis: {
-                            from: yaxis.min,
-                            to: yaxis.max
-                        }
-                    });
-                }
-            },
-            // mouseleave
-            function(){
-                //$(this).data("bouncing", false);
-                $('#tooltip').remove();
-                plot.clearSelection();
+            marker.hover(
+	            // mouseenter
+	            function(){
+	                var pos = $(this).offset();
+	                
+	                /*// check if the mouse is not already over the event
+	                if ($(this).data("bouncing") == false || $(this).data("bouncing") == undefined) {
+	                
+	                    // check the div is not already bouncing
+	                    if ($(this).position().top == $(this).data("top")) {
+	                        $(this).effect("bounce", {
+	                            times: 3
+	                        }, 300);
+	                    }
+	                    
+	                    $(this).data("bouncing", true);
+	                    _showTooltip(pos.left + $(this).width() / 2, pos.top, $(this).data("event"));
+	                }*/
+	                
+	                _showTooltip(pos.left, pos.top, $(this).data("event"));
+	                
+	                if (event.min != event.max) {
+	                    plot.setSelection({
+	                        xaxis: {
+	                            from: event.min,
+	                            to: event.max
+	                        },
+	                        yaxis: {
+	                            from: yaxis.min,
+	                            to: yaxis.max
+	                        }
+	                    });
+	                }
+	            },
+	            // mouseleave
+	            function(){
+	                //$(this).data("bouncing", false);
+	                $('#tooltip').remove();
+	                plot.clearSelection();
             });
             
             drawableEvent = new DrawableEvent(
-                div,
+            		line,
                 function(obj){
                     obj.show();
                 },
@@ -381,14 +426,17 @@
                 function(obj, position){
                     obj.css({
                         top: position.top,
-                        left: position.left   
+                        left: position.left
                     });
                 },
-                left, top, div.width(), div.height());
+                left, top, line.width(), line.height());
             
             return drawableEvent;
         };
         
+        /**
+         * TODO
+         */
         var _getEventsAtPos = function(x, y){
             var found = [], left, top, width, height;
             
@@ -407,6 +455,9 @@
             });
         };
         
+        /**
+         * TODO
+         */
         var _insidePlot = function(x) {
             var xaxis = plot.getXAxes()[plot.getOptions().events.xaxis - 1];
             var xc = xaxis.p2c(x);
@@ -414,6 +465,9 @@
             return xc > 0 && xc < xaxis.p2c(xaxis.max);
         };
         
+        /**
+         * TODO
+         */
         var _drawLine = function(color, lineWidth, from, to) {
             var ctx = plot.getCanvas().getContext("2d");                          
             var plotOffset = plot.getPlotOffset();
@@ -580,9 +634,14 @@
      * @param {Object} clearFunc
      *          the clear function
      */
-    function DrawableEvent(object, drawFunc, clearFunc, moveFunc, left, top, width, height){
-        var _object = object, _drawFunc = drawFunc, _clearFunc = clearFunc, _moveFunc = moveFunc, 
-        _position = { left: left, top: top }, _width = width, _height = height;
+    var DrawableEvent = function(object, drawFunc, clearFunc, moveFunc, left, top, width, height){
+        var _object = object, 
+        	_drawFunc = drawFunc, 
+        	_clearFunc = clearFunc,
+        	_moveFunc = moveFunc, 
+        	_position = { left: left, top: top }, 
+        	_width = width, 
+        	_height = height;
         
         this.width = function() { return _width; };
         this.height = function() { return _height };        
@@ -602,9 +661,12 @@
      * @param {Object} options
      * @param {Object} drawableEvent
      */
-    function VisualEvent(options, drawableEvent, level){
-        var _parent, _options = options, _drawableEvent = drawableEvent,
-            _level = level, _hidden = false;
+    var VisualEvent = function(options, drawableEvent, level){
+        var _parent, 
+        	_options = options, 
+        	_drawableEvent = drawableEvent,
+            _level = level, 
+            _hidden = false;
         
         this.visual = function() { return _drawableEvent; }
         this.level = function() { return _level; };
