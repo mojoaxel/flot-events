@@ -207,8 +207,7 @@
 				left: x,
 				
 				"position": "absolute",
-				"display": "none",
-				"width": "300px,"
+				"width": "300px",
 				"border": "1px solid #666",
 				"padding": "2px",
 				"background-color": "#CCC",
