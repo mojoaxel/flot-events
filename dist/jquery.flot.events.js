@@ -211,7 +211,7 @@
 				"border": "1px solid #666",
 				"padding": "2px",
 				"background-color": "#CCC",
-				"opacity": "0.80",
+				"z-index": "999",
 				"font-size": "smaller",
 				"cursor": "move"
 			});
