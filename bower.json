@@ -15,9 +15,9 @@
     "flot",
     "markers"
   ],
-  "licenses": [ 
+  "license": [ 
     "MIT", 
-    "GPLv2" ],
+    "GPL-2.0+" ],
   "ignore": [
     "**/.*"
   ]
