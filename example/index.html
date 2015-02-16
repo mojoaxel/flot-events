@@ -14,14 +14,15 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.navigate.min.js"></script>
 
 <!-- flot-events plugin -->
-<script type="text/javascript" src="../src/jquery.flot.events.js"></script>
-<link type="text/css" rel="stylesheet" href="../src/jquery.flot.events.css" />
+<script type="text/javascript" src="../dist/jquery.flot.events.js"></script>
+<link type="text/css" rel="stylesheet" href="../dist/jquery.flot.events.css" />
 	
 </head>
 <body>
 	<div id="plot" style="width:800px; height:400px;"></div>
 	
 	<style>
+	/* Example for overwriting the background-color of the tooltip from a specific type */
 	#tooltip.Info {
 		background-color: #3CC;
 	}
@@ -30,6 +31,7 @@
 	<script type="text/javascript">
 	$(document).ready(function() {
 		
+		/* generates an array of x/y points in a sine curve */
 		var sine_data = function() {
 			var a = [];
 			for(var i=0; i<=(Math.PI*2.01); i+=(Math.PI/16)) {
@@ -38,6 +40,7 @@
 			return a;
 		}();
 		
+		/* define the series */
 		var serie1 = {
 			data: sine_data,
 			label: "sine"
@@ -47,30 +50,28 @@
 		
 		var types = [{
 			eventType: "Info",
-			level: 1,
 			color: "blue"
 		}, {
 			eventType: "CriticalPoint",
-			level: 1,
 			color: "red"
 		}, {
 			eventType: "InflectionPoint",
-			level: 1,
 			color: "gray"
 		}];
 		
 		var events = [{
-			min: Math.PI,
-			max: Math.PI,
-			eventType: "InflectionPoint",
-			title: "Zero crossing",
-			description: "An inflection point is a point on a curve at which the curve changes from being concave to convex, or vice versa."
-		}, {
 			min: 1.5,
 			max: 1.5,
+			position: 'BOTTOM',
 			eventType: "Info",
 			title: "Near Maxima",
 			description: "This point is near the maxima. The tangent at this point is nearly hotizontal."
+		}, {
+			min: Math.PI,
+			max: Math.PI*1.5,
+			eventType: "InflectionPoint",
+			title: "Zero crossing",
+			description: "An inflection point is a point on a curve at which the curve changes from being concave to convex, or vice versa."
 		}, {
 			min: Math.PI*0.5,
 			max: Math.PI*0.5,
@@ -91,9 +92,16 @@
 			description: ""
 		}];
 		
-		var plot = $.plot($('#plot'), series, {
+		var plot = $.plot($('#plot'), [ serie1 ], {
+			xaxis: {
+				zoomRange: [2, 8],
+				panRange: [0, 8]
+			},
+			yaxis: {
+				zoomRange: [1, 4],
+				panRange: [-3, 3]
+			},
 			events: {
-				levels: 1,
 				data: events,
 				types: types
 			},
@@ -105,8 +113,7 @@
 			},
 			pan: {
 				interactive: true,
-				cursor: "move",
-				frameRate: 20
+				cursor: "move"
 			}
 		});
 	});
