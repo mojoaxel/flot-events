@@ -198,13 +198,23 @@
 		var _showTooltip = function(x, y, event){
 			var tooltip = $('<div id="tooltip" class="'+event.eventType+'"></div>').appendTo('body').fadeIn(200);
 			
-			$('<div id="title">' + event.title + '</div>').appendTo(tooltip);
-			$('<div id="type">Type: ' + event.eventType + '</div>').appendTo(tooltip);
+			$('<div id="title" style="font-weight:bold;">' + event.title + '</div>').appendTo(tooltip);
+			$('<div id="type" style="font-style: italic;">Type: ' + event.eventType + '</div>').appendTo(tooltip);
 			$('<div id="description">' + event.description + '</div>').appendTo(tooltip);
 			
 			tooltip.css({
 				top: y+20,
-				left: x
+				left: x,
+				
+				"position": "absolute",
+				"display": "none",
+				"width": "300px,"
+				"border": "1px solid #666",
+				"padding": "2px",
+				"background-color": "#CCC",
+				"opacity": "0.80",
+				"font-size": "smaller",
+				"cursor": "move"
 			});
 		};
 		
