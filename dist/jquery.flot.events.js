@@ -196,25 +196,35 @@
 		 * TODO
 		 */
 		var _showTooltip = function(x, y, event){
-			var tooltip = $('<div id="tooltip" class="'+event.eventType+'"></div>').appendTo('body').fadeIn(200);
+			x = Math.round(x);
+			y = Math.round(y);
 			
-			$('<div id="title" style="font-weight:bold;">' + event.title + '</div>').appendTo(tooltip);
-			$('<div id="type" style="font-style: italic;">Type: ' + event.eventType + '</div>').appendTo(tooltip);
-			$('<div id="description">' + event.description + '</div>').appendTo(tooltip);
+			var $tooltip = $('<div id="tooltip" class="'+event.eventType+'"></div>').appendTo('body');
+			$('<div id="title" style="font-weight:bold;">' + event.title + '</div>').appendTo($tooltip);
+			$('<div id="type" style="font-style:italic;">Type: ' + event.eventType + '</div>').appendTo($tooltip);
+			$('<div id="description">' + event.description + '</div>').appendTo($tooltip);
 			
-			tooltip.css({
-				top: y+20,
-				left: x,
-				
+			$tooltip.css({
 				"position": "absolute",
-				"width": "300px",
+				"max-width": "300px",
 				"border": "1px solid #666",
 				"padding": "2px",
-				"background-color": "#CCC",
+				"background-color": "#EEE",
 				"z-index": "999",
 				"font-size": "smaller",
 				"cursor": "move"
-			});
+			})
+			
+			var width = $tooltip.width();
+			if (x+width > window.innerWidth) {
+				console.log(x, width, window.innerWidth);
+				x = x-width;
+			}
+			
+			$tooltip.css({
+				top: y+20,
+				left: x
+			}).fadeIn(200);
 		};
 		
 		/**
@@ -240,7 +250,14 @@
 			//var po = plot.pointOffset({ x: 450, y: 1});
 			var container = plot.getPlaceholder(), o = plot.getPlotOffset(), yaxis, 
 			xaxis = plot.getXAxes()[plot.getOptions().events.xaxis - 1], axes = plot.getAxes();
-			var top, left, div, color, drawableEvent;
+			
+			var top, 
+				left, 
+				div, 
+				color,
+				markerSize,
+				lineStyle,
+				drawableEvent;
 			
 			// determine the y axis used
 			if (axes.yaxis && axes.yaxis.used) yaxis = axes.yaxis;
@@ -261,58 +278,72 @@
 				color = _types[eventTypeId].color;
 			}
 			
-			line = $('<div class="events_line"></div>').appendTo(container);
-			marker = $('<div class="events_marker"></div>').appendTo(line);
+			if (_types == null || !_types[eventTypeId] || !_types[eventTypeId].markerSize) {
+				markerSize = 5; //default marker size
+			} else {
+				markerSize = _types[eventTypeId].markerSize;
+			}
+			
+			if (_types == null || !_types[eventTypeId] || !_types[eventTypeId].lineStyle) {
+				lineStyle = 'dashed'; //default line style
+			} else {
+				lineStyle = _types[eventTypeId].lineStyle.toLowerCase();
+			}
+			
 			
 			top = o.top + plot.height();
 			left = xaxis.p2c(event.min) + o.left;
 			
-			line.css({
-				"position": "absolute",
-				"opacity": 0.8,
-				"left": left + 'px',
-				"top": 8,
-				"width": "1px",
-				"height": plot.height(),
-				
-				"border-left-width": "1px",
-				"border-left-style": "dashed",
-				"border-left-color": color
-			});
-			line.hide();
+			line = $('<div class="events_line"></div>').css({
+					"position": "absolute",
+					"opacity": 0.8,
+					"left": left + 'px',
+					"top": 8,
+					"width": "1px",
+					"height": plot.height(),
+					"border-left-width": "1px",
+					"border-left-style": lineStyle,
+					"border-left-color": color
+				})
+				.appendTo(container)
+				.hide();
 			
-			var ms = 5;
-			marker.css({
-				"position": "absolute",
-				"left": -ms-1+"px",
-				"top": "0px",
-				"cursor": "help",
-				"font-size": 0,
-				"line-height": 0,
-				"width": 0,
-				"height": 0, 
-				"border-left": ms+"px solid transparent",
-				"border-right": ms+"px solid transparent",
-				"border-top": ms+"px solid " + color,
-				"border-bottom": "none",
-			});
+			marker = $('<div class="events_marker"></div>').css({
+					"position": "absolute",
+					"left": -markerSize-1+"px",
+					"cursor": "help",
+					"font-size": 0,
+					"line-height": 0,
+					"width": 0,
+					"height": 0, 
+					"border-left": markerSize+"px solid transparent",
+					"border-right": markerSize+"px solid transparent"
+				})
+				.appendTo(line);
 			
-			if (event.position && event.position.toUpperCase() === 'BOTTOM') {
+			if (_types[eventTypeId] && _types[eventTypeId].position && _types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
 				marker.css({
-					"top": top-ms-8 +"px",
+					"top": top-markerSize-8 +"px",
 					"border-top": "none",
-					"border-bottom": ms+"px solid " + color,
+					"border-bottom": markerSize+"px solid " + color,
+				});
+			} else {
+				marker.css({
+					"top": "0px",
+					"border-top": markerSize+"px solid " + color,
+					"border-bottom": "none"
 				});
 			}
 			
 			marker.data({
 				"event": event
 			});
+			
 			marker.hover(
 				// mouseenter
 				function(){
 					var pos = $(this).offset();
-					if (event.position && event.position.toUpperCase() === 'BOTTOM') {
+					if (_types[eventTypeId] && _types[eventTypeId].position && _types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
 						pos.top -= 150;
 					}
 					

@@ -1,6 +1,6 @@
 {
   "name": "flot-events",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "homepage": "https://github.com/mojoaxel/flot-events",
   "authors": [
     "Joel Oughton <joeloughton@gmail.com>",
@@ -19,6 +19,7 @@
     "MIT", 
     "GPL-2.0+" ],
   "ignore": [
-    "**/.*"
+    "**/.*",
+    "server.js"
   ]
 }
