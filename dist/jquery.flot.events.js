@@ -92,72 +92,46 @@
 	/**
 	 * @class TODO
 	 */
-	var Marker = function() {
-		
-	};
-	
-	
-	function init(plot){
-		var _events = [], 
-			_types, 
+	var Marker = function(plot) {
+		var _events = [],
 			_eventsEnabled = false, 
-			lastRange;
+			_lastRange;
 		
-		plot.getEvents = function(){
+		this._types = [];
+		this.plot = plot;
+		
+		this.getEvents = function() {
 			return _events;
 		};
 		
-		plot.hideEvents = function(){
-			$.each(_events, function(index, event){
-				event.visual().getObject().hide();
-			});
+		this.setTypes = function(types) {
+			return this._types = types;
+		}
+		
+		this.setLastRage = function(lastRange) {
+			return this._lastRange = lastRange;
+		}
+		
+		this.getEventsEnabled = function() {
+			return _eventsEnabled;
 		};
 		
-		plot.showEvents = function(){
-			plot.hideEvents();
-			$.each(_events, function(index, event){
-				event.hide();
-			});
-			
-			_drawEvents();
-		};
-		
-		plot.hooks.processOptions.push(function(plot, options){
-			// enable the plugin
-			if (options.events.data != null) {
-				_eventsEnabled = true;
-			}
-		});
-		
-		plot.hooks.draw.push(function(plot, canvascontext){
-			var options = plot.getOptions();
-			var xaxis = plot.getXAxes()[options.events.xaxis - 1];
-			
-			if (_eventsEnabled) {
-				// check for first run
-				if (_events.length < 1) {
-					_lastRange = xaxis.max - xaxis.min;
-					_types = options.events.types;
-					_setupEvents(options.events.data);
-				} else {
-					_updateEvents();
-				}
-			}
-			
-			_drawEvents();
-		});
+		this.setEventsEnabled = function(state) {
+			return _eventsEnabled = state;
+		}
 		
 		/**
 		 * TODO
 		 */
-		var _drawEvents = function() {
-			var o = plot.getPlotOffset();
-			var pleft = o.left, pright = plot.width() - o.right;
+		this.drawEvents = function() {
+			var that = this;
+			var o = this.plot.getPlotOffset();
+			var pleft = o.left, pright = this.plot.width() - o.right;
 
 			$.each(_events, function(index, event){
 							
 				// check event is inside the graph range
-				if (_insidePlot(event.getOptions().min) &&
+				if (that._insidePlot(event.getOptions().min) &&
 					!event.isHidden()) {
 					event.visual().draw();
 				}  else {
@@ -165,11 +139,45 @@
 				}
 			});
 		};
+
+		/**
+		 * TODO
+		 */
+		this.updateEvents = function() {
+			var that = this;
+			var o = this.plot.getPlotOffset(), left, top;
+			var xaxis = this.plot.getXAxes()[this.plot.getOptions().events.xaxis - 1];
+			
+			$.each(_events, function(index, event) {
+				top = o.top + that.plot.height() - event.visual().height();
+				left = xaxis.p2c(event.getOptions().min) + o.left - event.visual().width() / 2;
+				
+				event.visual().moveTo({ top: top, left: left });
+			});
+		};
+
+		/**
+		 * TODO
+		 */
+		this.setupEvents = function(events){
+			var that = this;
+			$.each(events, function(index, event){
+				var ve = new VisualEvent(event, that._buildDiv(event));
+				_events.push(ve);
+			});
+			
+			_events.sort(function(a, b) {
+				var ao = a.getOptions(), bo = b.getOptions();
+				if (ao.min > bo.min) return 1;
+				if (ao.min < bo.min) return -1;
+				return 0;
+			});
+		};
 		
 		/**
 		 * TODO
 		 */
-		var _clearEvents = function(){			
+		this._clearEvents = function(){			
 			$.each(_events, function(index, val) {
 				val.visual().clear();
 			});
@@ -180,22 +188,7 @@
 		/**
 		 * TODO
 		 */
-		var _updateEvents = function() {
-			var o = plot.getPlotOffset(), left, top;
-			var xaxis = plot.getXAxes()[plot.getOptions().events.xaxis - 1];
-			
-			$.each(_events, function(index, event) {
-				top = o.top + plot.height() - event.visual().height();
-				left = xaxis.p2c(event.getOptions().min) + o.left - event.visual().width() / 2;
-				
-				event.visual().moveTo({ top: top, left: left });
-			});
-		};
-		
-		/**
-		 * TODO
-		 */
-		var _showTooltip = function(x, y, event){
+		this._showTooltip = function(x, y, event){
 			x = Math.round(x);
 			y = Math.round(y);
 			
@@ -230,26 +223,11 @@
 		/**
 		 * TODO
 		 */
-		var _setupEvents = function(events){
-			$.each(events, function(index, event){
-				_events.push(new VisualEvent(event, _buildDiv(event)));
-			});
-			
-			_events.sort(function(a, b) {
-				var ao = a.getOptions(), bo = b.getOptions();
-				if (ao.min > bo.min) return 1;
-				if (ao.min < bo.min) return -1;
-				return 0;
-			});
-		};
-		
-		/**
-		 * TODO
-		 */
-		var _buildDiv = function(event){
+		this._buildDiv = function(event){
+			var that = this;
 			//var po = plot.pointOffset({ x: 450, y: 1});
-			var container = plot.getPlaceholder(), o = plot.getPlotOffset(), yaxis, 
-			xaxis = plot.getXAxes()[plot.getOptions().events.xaxis - 1], axes = plot.getAxes();
+			var container = this.plot.getPlaceholder(), o = this.plot.getPlotOffset(), yaxis, 
+			xaxis = this.plot.getXAxes()[this.plot.getOptions().events.xaxis - 1], axes = this.plot.getAxes();
 			
 			var top, 
 				left, 
@@ -265,33 +243,33 @@
 			
 			// map the eventType to a types object
 			var eventTypeId = -1;
-			$.each(_types, function(index, type){
+			$.each(this._types, function(index, type){
 				if (type.eventType == event.eventType) {
 					eventTypeId = index;
 					return false;
 				}
 			});
 			
-			if (_types == null || !_types[eventTypeId] || !_types[eventTypeId].color) {
+			if (this._types == null || !this._types[eventTypeId] || !this._types[eventTypeId].color) {
 				color = '#666';
 			} else {
-				color = _types[eventTypeId].color;
+				color = this._types[eventTypeId].color;
 			}
 			
-			if (_types == null || !_types[eventTypeId] || !_types[eventTypeId].markerSize) {
+			if (this._types == null || !this._types[eventTypeId] || !this._types[eventTypeId].markerSize) {
 				markerSize = 5; //default marker size
 			} else {
-				markerSize = _types[eventTypeId].markerSize;
+				markerSize = this._types[eventTypeId].markerSize;
 			}
 			
-			if (_types == null || !_types[eventTypeId] || !_types[eventTypeId].lineStyle) {
+			if (this._types == null || !this._types[eventTypeId] || !this._types[eventTypeId].lineStyle) {
 				lineStyle = 'dashed'; //default line style
 			} else {
-				lineStyle = _types[eventTypeId].lineStyle.toLowerCase();
+				lineStyle = this._types[eventTypeId].lineStyle.toLowerCase();
 			}
 			
 			
-			top = o.top + plot.height();
+			top = o.top + this.plot.height();
 			left = xaxis.p2c(event.min) + o.left;
 			
 			line = $('<div class="events_line"></div>').css({
@@ -300,7 +278,7 @@
 					"left": left + 'px',
 					"top": 8,
 					"width": "1px",
-					"height": plot.height(),
+					"height": this.plot.height(),
 					"border-left-width": "1px",
 					"border-left-style": lineStyle,
 					"border-left-color": color
@@ -321,7 +299,7 @@
 				})
 				.appendTo(line);
 			
-			if (_types[eventTypeId] && _types[eventTypeId].position && _types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
+			if (this._types[eventTypeId] && this._types[eventTypeId].position && this._types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
 				marker.css({
 					"top": top-markerSize-8 +"px",
 					"border-top": "none",
@@ -343,14 +321,16 @@
 				// mouseenter
 				function(){
 					var pos = $(this).offset();
-					if (_types[eventTypeId] && _types[eventTypeId].position && _types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
+					if (that._types[eventTypeId] && 
+						that._types[eventTypeId].position && 
+						that._types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
 						pos.top -= 150;
 					}
 					
-					_showTooltip(pos.left, pos.top, $(this).data("event"));
+					that._showTooltip(pos.left, pos.top, $(this).data("event"));
 					
 					if (event.min != event.max) {
-						plot.setSelection({
+						that.plot.setSelection({
 							xaxis: {
 								from: event.min,
 								to: event.max
@@ -366,12 +346,12 @@
 				function(){
 					//$(this).data("bouncing", false);
 					$('#tooltip').remove();
-					plot.clearSelection();
+					that.plot.clearSelection();
 			});
 			
 			drawableEvent = new DrawableEvent(
 				line,
-				function(obj) { obj.show(); },
+				function drawFunc(obj) { obj.show(); },
 				function(obj){ obj.remove(); },
 				function(obj, position){
 					obj.css({
@@ -412,15 +392,67 @@
 		/**
 		 * TODO
 		 */
-		var _insidePlot = function(x) {
-			var xaxis = plot.getXAxes()[plot.getOptions().events.xaxis - 1];
+		this._insidePlot = function(x) {
+			var xaxis = this.plot.getXAxes()[this.plot.getOptions().events.xaxis - 1];
 			var xc = xaxis.p2c(x);
 			return xc > 0 && xc < xaxis.p2c(xaxis.max);
 		};
+	};
+	
+	
+	function init(plot){
+		var that = this;
+		var marker = new Marker(plot);
+		
+		/*
+		plot.getEvents = function(){
+			return marker._events;
+		};
+		
+		plot.hideEvents = function(){
+			$.each(marker._events, function(index, event){
+				event.visual().getObject().hide();
+			});
+		};
+		
+		plot.showEvents = function(){
+			plot.hideEvents();
+			$.each(marker._events, function(index, event){
+				event.hide();
+			});
+			
+			that.marker.drawEvents();
+		};
+		*/
+		
+		plot.hooks.processOptions.push(function(plot, options){
+			// enable the plugin
+			if (options.events.data != null) {
+				marker.setEventsEnabled(true);
+			}
+		});
+		
+		plot.hooks.draw.push(function(plot, canvascontext){
+			var options = plot.getOptions();
+			var xaxis = plot.getXAxes()[options.events.xaxis - 1];
+			
+			if (marker.getEventsEnabled) {
+				// check for first run
+				if (marker.getEvents().length < 1) {
+					marker.setLastRage(xaxis.max - xaxis.min);
+					marker.setTypes(options.events.types);
+					marker.setupEvents(options.events.data);
+				} else {
+					marker.updateEvents();
+				}
+			}
+			
+			marker.drawEvents();
+		});
 		
 	}//init
 	
-	var options = {
+	var defaultOptions = {
 		events: {
 			data: null,
 			types: null,
@@ -431,8 +463,8 @@
 	
 	$.plot.plugins.push({
 		init: init,
-		options: options,
+		options: defaultOptions,
 		name: "events",
-		version: "0.20"
+		version: "0.1.0"
 	});
 })(jQuery);
