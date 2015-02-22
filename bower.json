@@ -1,12 +1,12 @@
 {
   "name": "flot-events",
   "version": "0.1.1",
-  "homepage": "https://github.com/mojoaxel/flot-events",
+  "homepage": "http://mojoaxel.github.io/flot-events",
   "authors": [
     "Alexander Wunschik <alex@wunschik.net>"
     "Joel Oughton <joeloughton@gmail.com>",
   ],
-  "description": "Plugin for the flot charting library to show event-markers",
+  "description": "Flot Charting Library Plugin to show Events-Markers",
   "main": "dist/jquery.flot.events.js",
   "moduleType": [
     "globals"
