@@ -32,82 +32,97 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-        <a id="flot-events" class="anchor" href="#flot-events" aria-hidden="true"><span class="octicon octicon-link"></span></a>flot-events</h1>
-        <p>Flot Charting Library Plugin to show Events-Markers</p>
-        
-        <h2>Interactive Example</h2>
-        <iframe src="./example/" width="645px" height="325px" scrolling="no" seamless="seamless" style="overflow-y:hidden;"></iframe>
-        <ul>
-          <li><a href="./example/" target="_blank">open example in new tab</a></li>
-          <li><a href="https://github.com/mojoaxel/flot-events/blob/master/example/index.html">show example source on github</a></li>
-        </ul>
-        
-        <h2>Docs</h2>
-        <pre>
-var types = [{
-  eventType: "Info",
-  color: "blue"
+<a id="flot-events" class="anchor" href="#flot-events" aria-hidden="true"><span class="octicon octicon-link"></span></a>flot-events</h1>
+
+<p>Flot Charting Library Plugin to show Events-Markers</p>
+
+<h2>
+<a id="interactive-example" class="anchor" href="#interactive-example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interactive Example</h2>
+
+<ul>
+<li><a href="./example/">Open Demo</a></li>
+<li><a href="https://github.com/mojoaxel/flot-events/blob/master/example/index.html">Show example source</a></li>
+</ul>
+
+<h2>
+<a id="docs" class="anchor" href="#docs" aria-hidden="true"><span class="octicon octicon-link"></span></a>Docs</h2>
+
+<div class="highlight highlight-javascript"><pre><span class="pl-s">var</span> types <span class="pl-k">=</span> [{
+  eventType<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Info<span class="pl-pds">"</span></span>,
+  color<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>blue<span class="pl-pds">"</span></span>
 }, {
-  eventType: "Critical",
-  color: "red", // e.g red, #F00, #FF0000, [gray]
-  markerSize: 10, //in px, [5]
-  position: 'BOTTOM', //[TOP], BOTTOM
-  lineStyle: 'solid' //dotted, [dashed], solid
+  eventType<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Critical<span class="pl-pds">"</span></span>,
+  color<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>red<span class="pl-pds">"</span></span>, <span class="pl-c">// e.g red, #F00, #FF0000, [gray]</span>
+  markerSize<span class="pl-k">:</span> <span class="pl-c1">10</span>, <span class="pl-c">//in px, [5]</span>
+  position<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>BOTTOM<span class="pl-pds">'</span></span>, <span class="pl-c">//[TOP], BOTTOM</span>
+  lineStyle<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">'</span>solid<span class="pl-pds">'</span></span> <span class="pl-c">//dotted, [dashed], solid</span>
 }];
 
-var events = [{
-  min: 1,
-  max: 1,
-  eventType: "Info",
-  title: "Info Event",
-  description: "At position x=1 something happend!"
+<span class="pl-s">var</span> events <span class="pl-k">=</span> [{
+  min<span class="pl-k">:</span> <span class="pl-c1">1</span>,
+  max<span class="pl-k">:</span> <span class="pl-c1">1</span>,
+  eventType<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Info<span class="pl-pds">"</span></span>,
+  title<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Info Event<span class="pl-pds">"</span></span>,
+  description<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>At position x=1 something happend!<span class="pl-pds">"</span></span>
 }, {
-  min: 2,
-  max: 3,
-  eventType: "Critical",
-  title: "Critical region",
-  description: "Between x=2..3 something is critical"
+  min<span class="pl-k">:</span> <span class="pl-c1">2</span>,
+  max<span class="pl-k">:</span> <span class="pl-c1">3</span>,
+  eventType<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Critical<span class="pl-pds">"</span></span>,
+  title<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Critical region<span class="pl-pds">"</span></span>,
+  description<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Between x=2..3 something is critical<span class="pl-pds">"</span></span>
 }];
 
-var plot = $.plot($('#plot'), [ data ], {
-  events: {
-    data: events,
-    types: types
+<span class="pl-s">var</span> plot <span class="pl-k">=</span> $.plot($(<span class="pl-s1"><span class="pl-pds">'</span>#plot<span class="pl-pds">'</span></span>), [ data ], {
+  <span class="pl-c">/* this activates the events plugin and sets options */</span>
+  events<span class="pl-k">:</span> {
+    data<span class="pl-k">:</span> events,
+    types<span class="pl-k">:</span> types
   },
-  selection: {
-    color: "#e8cfac"
+  <span class="pl-c">/* optional for range highlighting; depends on jquery.flot.selection.*/</span>
+  selection<span class="pl-k">:</span> {
+    color<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>#e8cfac<span class="pl-pds">"</span></span>
   },
-});
-        </pre>
-        
-        <p>This plugin is tested to work together with these plugins:
-        <ul>
-          <li>jquery.flot.axislabels</li>
-          <li>jquery.flot.canvas</li>
-          <li>jquery.flot.downsample</li>
-          <li>jquery.flot.tooltip</li>
-          <li>jquery.flot.time</li>
-          <li>jquery.flot.selection</li>
-          <li>jquery.flot.navigate</li>
-        </ul>
-        </p>
-        
-        <h2>License</h2
-        <p>Dual licensed under <a href="http://opensource.org/licenses/MIT">MIT</a> and <a href="http://opensource.org/licenses/gpl-2.0.php">GPLv2</a></p>
-        
-        <p>This plugin is based on <a href="https://github.com/oughton">Joel Oughton</a>s <a href="http://joeloughton.com/blog/web-applications/flot-plugins-event-graphics/">"Event Graphics" plugin</a> from the <a href="https://github.com/oughton/flot-plugin-collection">flot-plugin-collection</a> witch is also licensed under  <a href="http://opensource.org/licenses/MIT">MIT</a> and <a href="http://opensource.org/licenses/gpl-2.0.php">GPLv2</a>.</p>
+});</pre></div>
+
+<p>This plugin is tested to work together with these plugins:</p>
+
+<ul>
+<li>jquery.flot.axislabels</li>
+<li>jquery.flot.canvas</li>
+<li>jquery.flot.downsample</li>
+<li>jquery.flot.tooltip</li>
+<li>jquery.flot.time</li>
+<li>jquery.flot.selection</li>
+<li>jquery.flot.navigate</li>
+</ul>
+
+<h2>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Dual licensed under <a href="http://opensource.org/licenses/MIT">MIT</a> and <a href="http://opensource.org/licenses/gpl-2.0.php">GPLv2</a>
+This plugin is based on <a href="https://github.com/oughton">Joel Oughtons</a> <a href="http://joeloughton.com/blog/web-applications/flot-plugins-event-graphics/">"Event Graphics" plugin</a> from his <a href="https://github.com/oughton/flot-plugin-collection">flot-plugin-collection</a> witch is also licensed under MIT and GPLv2.</p>
       </section>
     </div>
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">jquery.flot.events.js maintained by <a href="https://github.com/mojoaxel">Alexander Wunschik aka. mojoaxel</a></p>
+        <p class="copyright">jquery.flot.events.js maintained by <a href="https://github.com/mojoaxel">mojoaxel</a></p>
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
 
-    
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-60048357-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
 
   </body>
 </html>
