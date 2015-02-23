@@ -2,7 +2,7 @@
  * jquery.flot.events
  * 
  * description: Flot plugin for adding events/markers to the plot
- * version: 0.2.0
+ * version: 0.2.1
  * authors: 
  *    Alexander Wunschik <alex@wunschik.net>
  *    Joel Oughton <joeloughton@gmail.com>
@@ -405,6 +405,6 @@
 		init: init,
 		options: defaultOptions,
 		name: "events",
-		version: "0.2.0"
+		version: "0.2.1"
 	});
 })(jQuery);
