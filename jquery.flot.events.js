@@ -1,52 +1,20 @@
-/**
- * Flot plugin for adding 'events' to the plot.
- *
- * Events are small icons drawn onto the graph that represent something happening at that time.
- *
- * This plugin adds the following options to flot:
- *
- * options = {
- *	  events: {
- *		  data: [],	 // array of event objects
- *		  types: []	 // array of colors
- *		  xaxis: int	// the x axis to attach events to
- *	  }
- *  };
- *
- *
- * An event is a javascript object in the following form:
- *
- * {
- *	  min: startTime,
- *	  max: endTime,
- *	  eventType: "type",
- *	  title: "event title",
- *	  description: "event description"
- * }
- *
- * Types is an array of javascript objects in the following form:
- *
- * types: [
- *	 {
- *		 eventType: "eventType",	   // name [a-zA-Z0-9_]
- *		 color: #F00
- *	 }
- *  ]
- *
- * @author Joel Oughton
- * @author Alexander Wunschik
- */
+/*
+ * jquery.flot.events
+ * 
+ * description: Flot plugin for adding events/markers to the plot
+ * version: 0.2.0
+ * authors: 
+ *    Alexander Wunschik <alex@wunschik.net>
+ *    Joel Oughton <joeloughton@gmail.com>
+ *    
+ * website: https://github.com/mojoaxel/flot-events
+ * 
+ * released under MIT License and GPLv2+
+*/ 
 (function($){
 	
 	/**
 	 * A class that allows for the drawing an remove of some object
-	 *
-	 * @param {Object} object
-	 *		  the drawable object
-	 * @param {Object} drawFunc
-	 *		  the draw function
-	 * @param {Object} clearFunc
-	 *		  the clear function
 	 */
 	var DrawableEvent = function(object, drawFunc, clearFunc, moveFunc, left, top, width, height){
 		var _object = object, 
@@ -71,9 +39,6 @@
 	
 	/**
 	 * Event class that stores options (eventType, min, max, title, description) and the object to draw.
-	 *
-	 * @param {Object} options
-	 * @param {Object} drawableEvent
 	 */
 	var VisualEvent = function(options, drawableEvent){
 		var _parent, 
@@ -90,15 +55,15 @@
 	};
 	
 	/**
-	 * @class TODO
+	 * A Class that handles the event-markers inside the given plot
 	 */
-	var Marker = function(plot) {
+	var EventMarkers = function(plot) {
 		var _events = [],
-			_eventsEnabled = false, 
-			_lastRange;
+			_eventsEnabled = false;
 		
 		this._types = [];
-		this.plot = plot;
+		this._plot = plot;
+		this.eventsEnabled = false;
 		
 		this.getEvents = function() {
 			return _events;
@@ -108,56 +73,8 @@
 			return this._types = types;
 		}
 		
-		this.setLastRage = function(lastRange) {
-			return this._lastRange = lastRange;
-		}
-		
-		this.getEventsEnabled = function() {
-			return _eventsEnabled;
-		};
-		
-		this.setEventsEnabled = function(state) {
-			return _eventsEnabled = state;
-		}
-		
 		/**
-		 * TODO
-		 */
-		this.drawEvents = function() {
-			var that = this;
-			var o = this.plot.getPlotOffset();
-			var pleft = o.left, pright = this.plot.width() - o.right;
-
-			$.each(_events, function(index, event){
-							
-				// check event is inside the graph range
-				if (that._insidePlot(event.getOptions().min) &&
-					!event.isHidden()) {
-					event.visual().draw();
-				}  else {
-					event.visual().getObject().hide(); 
-				}
-			});
-		};
-
-		/**
-		 * TODO
-		 */
-		this.updateEvents = function() {
-			var that = this;
-			var o = this.plot.getPlotOffset(), left, top;
-			var xaxis = this.plot.getXAxes()[this.plot.getOptions().events.xaxis - 1];
-			
-			$.each(_events, function(index, event) {
-				top = o.top + that.plot.height() - event.visual().height();
-				left = xaxis.p2c(event.getOptions().min) + o.left - event.visual().width() / 2;
-				
-				event.visual().moveTo({ top: top, left: left });
-			});
-		};
-
-		/**
-		 * TODO
+		 * create internal objects for the given events
 		 */
 		this.setupEvents = function(events){
 			var that = this;
@@ -175,30 +92,62 @@
 		};
 		
 		/**
-		 * TODO
+		 * draw the events to the plot
+		 */
+		this.drawEvents = function() {
+			var that = this;
+			var o = this._plot.getPlotOffset();
+			var pleft = o.left, pright = this._plot.width() - o.right;
+
+			$.each(_events, function(index, event){
+				// check event is inside the graph range
+				if (that._insidePlot(event.getOptions().min) && !event.isHidden()) {
+					event.visual().draw();
+				}  else {
+					event.visual().getObject().hide(); 
+				}
+			});
+		};
+
+		/**
+		 * update the position of the event-markers (e.g. after scrolling or zooming)
+		 */
+		this.updateEvents = function() {
+			var that = this;
+			var o = this._plot.getPlotOffset(), left, top;
+			var xaxis = this._plot.getXAxes()[this._plot.getOptions().events.xaxis - 1];
+			
+			$.each(_events, function(index, event) {
+				top = o.top + that._plot.height() - event.visual().height();
+				left = xaxis.p2c(event.getOptions().min) + o.left - event.visual().width() / 2;
+				event.visual().moveTo({ top: top, left: left });
+			});
+		};
+		
+		/**
+		 * remove all events from the plot
 		 */
 		this._clearEvents = function(){			
 			$.each(_events, function(index, val) {
 				val.visual().clear();
 			});
-
 			_events = [];
 		};
 		
 		/**
-		 * TODO
+		 * create a new DOM element for the tooltip
 		 */
-		this._showTooltip = function(x, y, event){
+		this._createTooltip = function(x, y, event){
 			x = Math.round(x);
 			y = Math.round(y);
 			
-			var $tooltip = $('<div id="tooltip" class="'+event.eventType+'"></div>').appendTo('body');
-			$('<div id="title" style="font-weight:bold;">' + event.title + '</div>').appendTo($tooltip);
-			$('<div id="type" style="font-style:italic;">Type: ' + event.eventType + '</div>').appendTo($tooltip);
-			$('<div id="description">' + event.description + '</div>').appendTo($tooltip);
+			var $tooltip = $('<div id="flot-events-tooltip" data-eventtype="'+event.eventType+'"></div>').appendTo('body');
 			
 			$tooltip.css({
+				"display": "none",
 				"position": "absolute",
+				"top": y+20,
+				"left": x,
 				"max-width": "300px",
 				"border": "1px solid #666",
 				"padding": "2px",
@@ -208,34 +157,48 @@
 				"cursor": "move"
 			})
 			
+			$('<div id="title" style="font-weight:bold;">' + event.title + '</div>').appendTo($tooltip);
+			$('<div id="type" style="font-style:italic;">Type: ' + event.eventType + '</div>').appendTo($tooltip);
+			$('<div id="description">' + event.description + '</div>').appendTo($tooltip);
+			
+			// check if the tooltip reaches outside the window			
 			var width = $tooltip.width();
 			if (x+width > window.innerWidth) {
 				console.log(x, width, window.innerWidth);
 				x = x-width;
+				$tooltip.css({
+					left: x
+				});
 			}
 			
-			$tooltip.css({
-				top: y+20,
-				left: x
-			}).fadeIn(200);
+			// show the tooltip (e.g. fadeIn)
+			$tooltip.show();
 		};
 		
 		/**
-		 * TODO
+		 * remove the tooltip DOM element
+		 */
+		this._deleteTooltip = function() {
+			$('#flot-events-tooltip').remove();
+		};
+		
+		/**
+		 * create a DOM element for the given event
 		 */
 		this._buildDiv = function(event){
 			var that = this;
-			//var po = plot.pointOffset({ x: 450, y: 1});
-			var container = this.plot.getPlaceholder(), o = this.plot.getPlotOffset(), yaxis, 
-			xaxis = this.plot.getXAxes()[this.plot.getOptions().events.xaxis - 1], axes = this.plot.getAxes();
 			
-			var top, 
+			var container = this._plot.getPlaceholder(), 
+				o = this._plot.getPlotOffset(), 
+				axes = this._plot.getAxes(),
+				xaxis = this._plot.getXAxes()[this._plot.getOptions().events.xaxis - 1], 
+				yaxis, 
+				top, 
 				left, 
 				div, 
 				color,
 				markerSize,
-				lineStyle,
-				drawableEvent;
+				lineStyle;
 			
 			// determine the y axis used
 			if (axes.yaxis && axes.yaxis.used) yaxis = axes.yaxis;
@@ -269,7 +232,7 @@
 			}
 			
 			
-			top = o.top + this.plot.height();
+			top = o.top + this._plot.height();
 			left = xaxis.p2c(event.min) + o.left;
 			
 			line = $('<div class="events_line"></div>').css({
@@ -278,7 +241,7 @@
 					"left": left + 'px',
 					"top": 8,
 					"width": "1px",
-					"height": this.plot.height(),
+					"height": this._plot.height(),
 					"border-left-width": "1px",
 					"border-left-style": lineStyle,
 					"border-left-color": color
@@ -317,39 +280,38 @@
 				"event": event
 			});
 			
-			marker.hover(
-				// mouseenter
-				function(){
-					var pos = $(this).offset();
-					if (that._types[eventTypeId] && 
-						that._types[eventTypeId].position && 
-						that._types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
-						pos.top -= 150;
-					}
-					
-					that._showTooltip(pos.left, pos.top, $(this).data("event"));
-					
-					if (event.min != event.max) {
-						that.plot.setSelection({
-							xaxis: {
-								from: event.min,
-								to: event.max
-							},
-							yaxis: {
-								from: yaxis.min,
-								to: yaxis.max
-							}
-						});
-					}
-				},
-				// mouseleave
-				function(){
-					//$(this).data("bouncing", false);
-					$('#tooltip').remove();
-					that.plot.clearSelection();
-			});
+			var mouseenter = function(){
+				var pos = $(this).offset();
+				if (that._types[eventTypeId] && 
+					that._types[eventTypeId].position && 
+					that._types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
+					pos.top -= 150;
+				}
+				
+				that._createTooltip(pos.left, pos.top, $(this).data("event"));
+				
+				if (event.min != event.max) {
+					that._plot.setSelection({
+						xaxis: {
+							from: event.min,
+							to: event.max
+						},
+						yaxis: {
+							from: yaxis.min,
+							to: yaxis.max
+						}
+					});
+				}
+			};
 			
-			drawableEvent = new DrawableEvent(
+			var mouseleave = function(){
+				that._deleteTooltip();
+				that._plot.clearSelection();
+			};
+			
+			marker.hover(mouseenter, mouseleave);
+			
+			var drawableEvent = new DrawableEvent(
 				line,
 				function drawFunc(obj) { obj.show(); },
 				function(obj){ obj.remove(); },
@@ -369,66 +331,45 @@
 		};
 		
 		/**
-		 * TODO
-		 */
-		var _getEventsAtPos = function(x, y){
-			var found = [], left, top, width, height;
-			
-			$.each(_events, function(index, val){
-			
-				left = val.div.offset().left;
-				top = val.div.offset().top;
-				width = val.div.width();
-				height = val.div.height();
-				
-				if (x >= left && x <= left + width && y >= top && y <= top + height) {
-					found.push(val);
-				}
-				
-				return found;
-			});
-		};
-		
-		/**
-		 * TODO
+		 * check if the event is inside visible range
 		 */
 		this._insidePlot = function(x) {
-			var xaxis = this.plot.getXAxes()[this.plot.getOptions().events.xaxis - 1];
+			var xaxis = this._plot.getXAxes()[this._plot.getOptions().events.xaxis - 1];
 			var xc = xaxis.p2c(x);
 			return xc > 0 && xc < xaxis.p2c(xaxis.max);
 		};
 	};
 	
-	
+	/**
+	 * initialize the plugin for the given plot
+	 */
 	function init(plot){
 		var that = this;
-		var marker = new Marker(plot);
+		var eventMarkers = new EventMarkers(plot);
 		
-		/*
 		plot.getEvents = function(){
-			return marker._events;
+			return eventMarkers._events;
 		};
 		
 		plot.hideEvents = function(){
-			$.each(marker._events, function(index, event){
+			$.each(eventMarkers._events, function(index, event){
 				event.visual().getObject().hide();
 			});
 		};
 		
 		plot.showEvents = function(){
 			plot.hideEvents();
-			$.each(marker._events, function(index, event){
+			$.each(eventMarkers._events, function(index, event){
 				event.hide();
 			});
 			
-			that.marker.drawEvents();
+			that.eventMarkers.drawEvents();
 		};
-		*/
 		
 		plot.hooks.processOptions.push(function(plot, options){
 			// enable the plugin
 			if (options.events.data != null) {
-				marker.setEventsEnabled(true);
+				eventMarkers.eventsEnabled = true;
 			}
 		});
 		
@@ -436,21 +377,20 @@
 			var options = plot.getOptions();
 			var xaxis = plot.getXAxes()[options.events.xaxis - 1];
 			
-			if (marker.getEventsEnabled) {
+			if (eventMarkers.eventsEnabled) {
 				// check for first run
-				if (marker.getEvents().length < 1) {
-					marker.setLastRage(xaxis.max - xaxis.min);
-					marker.setTypes(options.events.types);
-					marker.setupEvents(options.events.data);
+				if (eventMarkers.getEvents().length < 1) {
+					eventMarkers.setTypes(options.events.types);
+					eventMarkers.setupEvents(options.events.data);
 				} else {
-					marker.updateEvents();
+					eventMarkers.updateEvents();
 				}
 			}
 			
-			marker.drawEvents();
+			eventMarkers.drawEvents();
 		});
 		
-	}//init
+	};
 	
 	var defaultOptions = {
 		events: {
@@ -465,6 +405,6 @@
 		init: init,
 		options: defaultOptions,
 		name: "events",
-		version: "0.1.1"
+		version: "0.2.0"
 	});
 })(jQuery);
