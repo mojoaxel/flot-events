@@ -32,26 +32,77 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-<a id="flot-events" class="anchor" href="#flot-events" aria-hidden="true"><span class="octicon octicon-link"></span></a>flot-events</h1>
+        <a id="flot-events" class="anchor" href="#flot-events" aria-hidden="true"><span class="octicon octicon-link"></span></a>flot-events</h1>
+        <p>Flot Charting Library Plugin to show Events-Markers</p>
+        
+        <h2>Interactive Example</h2>
+        <iframe src="./example/" width="645px" height="325px" scrolling="no" seamless="seamless" style="overflow-y:hidden;"></iframe>
+        <ul>
+          <li><a href="./example/" target="_blank">open example in new tab</a></li>
+          <li><a href="https://github.com/mojoaxel/flot-events/blob/master/example/index.html">show example source on github</a></li>
+        </ul>
+        
+        <h2>Docs</h2>
+        <pre>
+var types = [{
+  eventType: "Info",
+  color: "blue"
+}, {
+  eventType: "Critical",
+  color: "red", // e.g red, #F00, #FF0000, [gray]
+  markerSize: 10, //in px, [5]
+  position: 'BOTTOM', //[TOP], BOTTOM
+  lineStyle: 'solid' //dotted, [dashed], solid
+}];
 
-<p>Flot Charting Library Plugin to show Events-Markers</p>
+var events = [{
+  min: 1,
+  max: 1,
+  eventType: "Info",
+  title: "Info Event",
+  description: "At position x=1 something happend!"
+}, {
+  min: 2,
+  max: 3,
+  eventType: "Critical",
+  title: "Critical region",
+  description: "Between x=2..3 something is critical"
+}];
 
-<p>This plugin is based on <a href="https://github.com/oughton">Joel Oughton</a>s <a href="http://joeloughton.com/blog/web-applications/flot-plugins-event-graphics/">"Event Graphics" plugin</a> from the <a href="flot-plugin-collection">https://github.com/oughton/flot-plugin-collection</a>.</p>
-
-<ul>
-<li>Dual licensed under MIT and GPL-2.0+</li>
-</ul>
-
-      <iframe src="./example/" width="640px" height="320px"></iframe>
-      <a href="https://github.com/mojoaxel/flot-events/blob/master/example/index.html">show example source</a>
-      
+var plot = $.plot($('#plot'), [ data ], {
+  events: {
+    data: events,
+    types: types
+  },
+  selection: {
+    color: "#e8cfac"
+  },
+});
+        </pre>
+        
+        <p>This plugin is tested to work together with these plugins:
+        <ul>
+          <li>jquery.flot.axislabels</li>
+          <li>jquery.flot.canvas</li>
+          <li>jquery.flot.downsample</li>
+          <li>jquery.flot.tooltip</li>
+          <li>jquery.flot.time</li>
+          <li>jquery.flot.selection</li>
+          <li>jquery.flot.navigate</li>
+        </ul>
+        </p>
+        
+        <h2>License</h2
+        <p>Dual licensed under <a href="http://opensource.org/licenses/MIT">MIT</a> and <a href="http://opensource.org/licenses/gpl-2.0.php">GPLv2</a></p>
+        
+        <p>This plugin is based on <a href="https://github.com/oughton">Joel Oughton</a>s <a href="http://joeloughton.com/blog/web-applications/flot-plugins-event-graphics/">"Event Graphics" plugin</a> from the <a href="https://github.com/oughton/flot-plugin-collection">flot-plugin-collection</a> witch is also licensed under  <a href="http://opensource.org/licenses/MIT">MIT</a> and <a href="http://opensource.org/licenses/gpl-2.0.php">GPLv2</a>.</p>
       </section>
     </div>
 
     <!-- FOOTER  -->
     <div id="footer_wrap" class="outer">
       <footer class="inner">
-        <p class="copyright">jquery.flot.events.js maintained by <a href="https://github.com/mojoaxel">mojoaxel</a></p>
+        <p class="copyright">jquery.flot.events.js maintained by <a href="https://github.com/mojoaxel">Alexander Wunschik aka. mojoaxel</a></p>
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
