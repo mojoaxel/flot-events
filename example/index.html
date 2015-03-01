@@ -41,14 +41,17 @@
 		var series = [serie1];
 		
 		var types = [{
-			eventType: "Info",
-			color: "blue"
+			eventType: "Simple",
+			color: "blue",
+			markerShow: false, // [true], false
 		}, {
 			eventType: "CriticalPoint",
-			color: "red", // e.g red, #F00, #FF0000
-			markerSize: 10, //in px
+			color: "green", // e.g red, #F00, #FF0000
+			markerSize: 10, //[5]px
+			markerShow: true, // [true], false
 			position: 'BOTTOM', //[TOP], BOTTOM
-			lineStyle: 'solid' //dotted, [dashed], solid
+			lineStyle: 'solid', //dotted, [dashed], solid
+			lineWidth: 2 //[1]px
 		}, {
 			eventType: "InflectionPoint",
 			color: "gray"
@@ -57,9 +60,9 @@
 		var events = [{
 			min: 1.5,
 			max: 1.5,
-			eventType: "Info",
-			title: "Near Maxima",
-			description: "This point is near the maxima. The tangent at this point is nearly hotizontal."
+			eventType: "Simple",
+			title: "Hidden",
+			description: "This description is never shown because markerShow is false for this type"
 		}, {
 			min: Math.PI,
 			max: Math.PI*1.5,
