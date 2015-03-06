@@ -15,9 +15,12 @@ var types = [{
 }, {
   eventType: "Critical",
   color: "red", // e.g red, #F00, #FF0000, [gray]
-  markerSize: 10, //in px, [5]
   position: 'BOTTOM', //[TOP], BOTTOM
-  lineStyle: 'solid' //dotted, [dashed], solid
+  lineStyle: 'solid', //dotted, [dashed], solid
+  lineWidth: 2, //[1]px
+  markerSize: 10, //in px, [5]
+  markerShow: true, // [true], false
+  markerTooltip: true // [true], false 
 }];
 
 var events = [{
