@@ -2,7 +2,7 @@
  * jquery.flot.events
  * 
  * description: Flot plugin for adding events/markers to the plot
- * version: 0.2.2
+ * version: 0.2.3
  * authors: 
  *    Alexander Wunschik <alex@wunschik.net>
  *    Joel Oughton <joeloughton@gmail.com>
@@ -232,6 +232,12 @@
 				markerShow = this._types[eventTypeId].markerShow;
 			}
 			
+			if (this._types == null || !this._types[eventTypeId] || this._types[eventTypeId].markerTooltip === undefined) {
+				markerTooltip = true;
+			} else {
+				markerTooltip = this._types[eventTypeId].markerTooltip;
+			}
+			
 			if (this._types == null || !this._types[eventTypeId] || !this._types[eventTypeId].lineStyle) {
 				lineStyle = 'dashed'; //default line style
 			} else {
@@ -266,7 +272,6 @@
 				marker = $('<div class="events_marker"></div>').css({
 						"position": "absolute",
 						"left": (-markerSize-Math.round(lineWidth/2)) + "px",
-						"cursor": "help",
 						"font-size": 0,
 						"line-height": 0,
 						"width": 0,
@@ -293,6 +298,7 @@
 				marker.data({
 					"event": event
 				});
+				console.log(marker);
 				
 				var mouseenter = function(){
 					var pos = $(this).offset();
@@ -323,7 +329,10 @@
 					that._plot.clearSelection();
 				};
 				
-				marker.hover(mouseenter, mouseleave);
+				if (markerTooltip) {
+					marker.css({ "cursor": "help" });
+					marker.hover(mouseenter, mouseleave);
+				}
 			}
 			
 			var drawableEvent = new DrawableEvent(
@@ -420,6 +429,6 @@
 		init: init,
 		options: defaultOptions,
 		name: "events",
-		version: "0.2.2"
+		version: "0.2.3"
 	});
 })(jQuery);

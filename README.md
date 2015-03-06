@@ -64,6 +64,13 @@ This plugin is based on [Joel Oughtons](https://github.com/oughton) ["Event Grap
 
 ## Versions
 
+### 0.2.3
+* added option "markerTooltip" with default `true`
+
+### 0.2.2
+* added option "markerShow" with default `true`
+* added option "lineWidth" with default `1`
+
 ### 0.2.1
 * registered with bower
 
