@@ -61,3 +61,18 @@ This plugin is tested to work together with these plugins:
 
 Dual licensed under [MIT](http://opensource.org/licenses/MIT) and [GPLv2](http://opensource.org/licenses/gpl-2.0.php)
 This plugin is based on [Joel Oughtons](https://github.com/oughton) ["Event Graphics" plugin](http://joeloughton.com/blog/web-applications/flot-plugins-event-graphics/) from his [flot-plugin-collection](https://github.com/oughton/flot-plugin-collection) witch is also licensed under MIT and GPLv2.
+
+## Versions
+
+### 0.2.3
+* added option "markerTooltip" with default `true`
+
+### 0.2.2
+* added option "markerShow" with default `true`
+* added option "lineWidth" with default `1`
+
+### 0.2.1
+* registered with bower
+
+### 0.2.0
+* first release

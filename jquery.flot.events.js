@@ -2,7 +2,7 @@
  * jquery.flot.events
  * 
  * description: Flot plugin for adding events/markers to the plot
- * version: 0.2.0
+ * version: 0.2.3
  * authors: 
  *    Alexander Wunschik <alex@wunschik.net>
  *    Joel Oughton <joeloughton@gmail.com>
@@ -164,7 +164,6 @@
 			// check if the tooltip reaches outside the window			
 			var width = $tooltip.width();
 			if (x+width > window.innerWidth) {
-				console.log(x, width, window.innerWidth);
 				x = x-width;
 				$tooltip.css({
 					left: x
@@ -198,7 +197,9 @@
 				div, 
 				color,
 				markerSize,
-				lineStyle;
+				markerShow,
+				lineStyle,
+				lineWidth;
 			
 			// determine the y axis used
 			if (axes.yaxis && axes.yaxis.used) yaxis = axes.yaxis;
@@ -225,10 +226,28 @@
 				markerSize = this._types[eventTypeId].markerSize;
 			}
 			
+			if (this._types == null || !this._types[eventTypeId] || this._types[eventTypeId].markerShow === undefined) {
+				markerShow = true;
+			} else {
+				markerShow = this._types[eventTypeId].markerShow;
+			}
+			
+			if (this._types == null || !this._types[eventTypeId] || this._types[eventTypeId].markerTooltip === undefined) {
+				markerTooltip = true;
+			} else {
+				markerTooltip = this._types[eventTypeId].markerTooltip;
+			}
+			
 			if (this._types == null || !this._types[eventTypeId] || !this._types[eventTypeId].lineStyle) {
 				lineStyle = 'dashed'; //default line style
 			} else {
 				lineStyle = this._types[eventTypeId].lineStyle.toLowerCase();
+			}
+			
+			if (this._types == null || !this._types[eventTypeId] || this._types[eventTypeId].lineWidth === undefined) {
+				lineWidth = 1; //default line width
+			} else {
+				lineWidth = this._types[eventTypeId].lineWidth;
 			}
 			
 			
@@ -240,76 +259,81 @@
 					"opacity": 0.8,
 					"left": left + 'px',
 					"top": 8,
-					"width": "1px",
+					"width": lineWidth + "px",
 					"height": this._plot.height(),
-					"border-left-width": "1px",
+					"border-left-width": lineWidth + "px",
 					"border-left-style": lineStyle,
 					"border-left-color": color
 				})
 				.appendTo(container)
 				.hide();
 			
-			marker = $('<div class="events_marker"></div>').css({
-					"position": "absolute",
-					"left": -markerSize-1+"px",
-					"cursor": "help",
-					"font-size": 0,
-					"line-height": 0,
-					"width": 0,
-					"height": 0, 
-					"border-left": markerSize+"px solid transparent",
-					"border-right": markerSize+"px solid transparent"
-				})
-				.appendTo(line);
-			
-			if (this._types[eventTypeId] && this._types[eventTypeId].position && this._types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
-				marker.css({
-					"top": top-markerSize-8 +"px",
-					"border-top": "none",
-					"border-bottom": markerSize+"px solid " + color,
-				});
-			} else {
-				marker.css({
-					"top": "0px",
-					"border-top": markerSize+"px solid " + color,
-					"border-bottom": "none"
-				});
-			}
-			
-			marker.data({
-				"event": event
-			});
-			
-			var mouseenter = function(){
-				var pos = $(this).offset();
-				if (that._types[eventTypeId] && 
-					that._types[eventTypeId].position && 
-					that._types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
-					pos.top -= 150;
-				}
+			if (markerShow) {
+				marker = $('<div class="events_marker"></div>').css({
+						"position": "absolute",
+						"left": (-markerSize-Math.round(lineWidth/2)) + "px",
+						"font-size": 0,
+						"line-height": 0,
+						"width": 0,
+						"height": 0, 
+						"border-left": markerSize+"px solid transparent",
+						"border-right": markerSize+"px solid transparent"
+					})
+					.appendTo(line);
 				
-				that._createTooltip(pos.left, pos.top, $(this).data("event"));
-				
-				if (event.min != event.max) {
-					that._plot.setSelection({
-						xaxis: {
-							from: event.min,
-							to: event.max
-						},
-						yaxis: {
-							from: yaxis.min,
-							to: yaxis.max
-						}
+				if (this._types[eventTypeId] && this._types[eventTypeId].position && this._types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
+					marker.css({
+						"top": top-markerSize-8 +"px",
+						"border-top": "none",
+						"border-bottom": markerSize+"px solid " + color,
+					});
+				} else {
+					marker.css({
+						"top": "0px",
+						"border-top": markerSize+"px solid " + color,
+						"border-bottom": "none"
 					});
 				}
-			};
-			
-			var mouseleave = function(){
-				that._deleteTooltip();
-				that._plot.clearSelection();
-			};
-			
-			marker.hover(mouseenter, mouseleave);
+				
+				marker.data({
+					"event": event
+				});
+				console.log(marker);
+				
+				var mouseenter = function(){
+					var pos = $(this).offset();
+					if (that._types[eventTypeId] && 
+						that._types[eventTypeId].position && 
+						that._types[eventTypeId].position.toUpperCase() === 'BOTTOM') {
+						pos.top -= 150;
+					}
+					
+					that._createTooltip(pos.left, pos.top, $(this).data("event"));
+					
+					if (event.min != event.max) {
+						that._plot.setSelection({
+							xaxis: {
+								from: event.min,
+								to: event.max
+							},
+							yaxis: {
+								from: yaxis.min,
+								to: yaxis.max
+							}
+						});
+					}
+				};
+				
+				var mouseleave = function(){
+					that._deleteTooltip();
+					that._plot.clearSelection();
+				};
+				
+				if (markerTooltip) {
+					marker.css({ "cursor": "help" });
+					marker.hover(mouseenter, mouseleave);
+				}
+			}
 			
 			var drawableEvent = new DrawableEvent(
 				line,
@@ -405,6 +429,6 @@
 		init: init,
 		options: defaultOptions,
 		name: "events",
-		version: "0.2.0"
+		version: "0.2.3"
 	});
 })(jQuery);
