@@ -67,6 +67,9 @@ This plugin is based on [Joel Oughtons](https://github.com/oughton) ["Event Grap
 
 ## Versions
 
+### 0.2.4
+* removed `console.log`
+
 ### 0.2.3
 * added option "markerTooltip" with default `true`
 

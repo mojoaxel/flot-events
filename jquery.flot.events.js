@@ -2,7 +2,7 @@
  * jquery.flot.events
  * 
  * description: Flot plugin for adding events/markers to the plot
- * version: 0.2.3
+ * version: 0.2.4
  * authors: 
  *    Alexander Wunschik <alex@wunschik.net>
  *    Joel Oughton <joeloughton@gmail.com>
@@ -298,7 +298,6 @@
 				marker.data({
 					"event": event
 				});
-				console.log(marker);
 				
 				var mouseenter = function(){
 					var pos = $(this).offset();
@@ -429,6 +428,6 @@
 		init: init,
 		options: defaultOptions,
 		name: "events",
-		version: "0.2.3"
+		version: "0.2.4"
 	});
 })(jQuery);
