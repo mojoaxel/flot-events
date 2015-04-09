@@ -82,6 +82,19 @@
   selection<span class="pl-k">:</span> {
     color<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>#e8cfac<span class="pl-pds">"</span></span>
   },
+  
+<span class="pl-c">
+/* It is also possible to add events dynamically 
+ * after initialization by using the setEvents function 
+ */</span>
+$('button').click(function() {
+	plot.setEvents([{
+		min<span class="pl-k">:</span> <span class="pl-c1">2.5</span>,
+		max<span class="pl-k">:</span> <span class="pl-c1">2.5</span>,
+		eventType<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>Simple<span class="pl-pds">"</span></span>,
+		title<span class="pl-k">:</span> <span class="pl-s1"><span class="pl-pds">"</span>dynamically added event<span class="pl-pds">"</span></span>
+	}]);
+});
 });</pre></div>
 
 <p>This plugin is tested to work together with these plugins:</p>
