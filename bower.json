@@ -1,10 +1,11 @@
 {
   "name": "flot-events",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "homepage": "http://mojoaxel.github.io/flot-events",
   "authors": [
     "Alexander Wunschik",
-    "Joel Oughton"
+    "Joel Oughton",
+    "Nicolas Joseph"
   ],
   "description": "Flot Charting Library Plugin to show Events-Markers",
   "main": "jquery.flot.events.js",

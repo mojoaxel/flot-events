@@ -114,6 +114,17 @@
 				cursor: "move"
 			}
 		});
+		
+		/* wait 5 seconds and dynamicaly add a new marker */
+		setTimeout(function() {
+			plot.setEvents([{
+				min: 2.5,
+				max: 2.5,
+				eventType: "Simple",
+				title: "dynamically added event",
+				description: ""
+			}]);
+		}, 5000);
 	});
 	</script>
 </body>
