@@ -48,6 +48,18 @@ var plot = $.plot($('#plot'), [ data ], {
     color: "#e8cfac"
   },
 });
+
+/* It is also possible to add events dynamically 
+ * after initialization by using the setEvents function 
+ */
+$('button').click(function() {
+	plot.setEvents([{
+		min: 2.5,
+		max: 2.5,
+		eventType: "Simple",
+		title: "dynamically added event"
+	}]);
+});
 ```
 
 This plugin is tested to work together with these plugins:
@@ -66,6 +78,12 @@ Dual licensed under [MIT](http://opensource.org/licenses/MIT) and [GPLv2](http:/
 This plugin is based on [Joel Oughtons](https://github.com/oughton) ["Event Graphics" plugin](http://joeloughton.com/blog/web-applications/flot-plugins-event-graphics/) from his [flot-plugin-collection](https://github.com/oughton/flot-plugin-collection) witch is also licensed under MIT and GPLv2.
 
 ## Versions
+
+### 0.2.5
+* added function "setEvents" to dynamically add events (thx to callicles) 
+
+### 0.2.4
+* removed `console.log`
 
 ### 0.2.3
 * added option "markerTooltip" with default `true`
