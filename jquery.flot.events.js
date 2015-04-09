@@ -35,18 +35,18 @@
 			_position = position;
 			_moveFunc(_object, _position);
 		};
-	}
+	};
 	
 	/**
 	 * Event class that stores options (eventType, min, max, title, description) and the object to draw.
 	 */
 	var VisualEvent = function(options, drawableEvent){
-		var _parent, 
-			_options = options, 
+		var _parent,
+			_options = options,
 			_drawableEvent = drawableEvent,
 			_hidden = false;
 		
-		this.visual = function() { return _drawableEvent; }
+		this.visual = function() { return _drawableEvent; };
 		this.getOptions = function() { return _options; };
 		this.getParent = function() { return _parent; };
 		this.isHidden = function() { return _hidden; };
@@ -58,8 +58,7 @@
 	 * A Class that handles the event-markers inside the given plot
 	 */
 	var EventMarkers = function(plot) {
-		var _events = [],
-			_eventsEnabled = false;
+		var _events = [];
 		
 		this._types = [];
 		this._plot = plot;
@@ -71,7 +70,7 @@
 		
 		this.setTypes = function(types) {
 			return this._types = types;
-		}
+		};
 		
 		/**
 		 * create internal objects for the given events
@@ -97,7 +96,6 @@
 		this.drawEvents = function() {
 			var that = this;
 			var o = this._plot.getPlotOffset();
-			var pleft = o.left, pright = this._plot.width() - o.right;
 
 			$.each(_events, function(index, event){
 				// check event is inside the graph range
@@ -123,17 +121,17 @@
 				event.visual().moveTo({ top: top, left: left });
 			});
 		};
-		
+
 		/**
 		 * remove all events from the plot
 		 */
-		this._clearEvents = function(){			
+		this._clearEvents = function(){
 			$.each(_events, function(index, val) {
 				val.visual().clear();
 			});
 			_events = [];
 		};
-		
+
 		/**
 		 * create a new DOM element for the tooltip
 		 */
@@ -155,7 +153,7 @@
 				"z-index": "999",
 				"font-size": "smaller",
 				"cursor": "move"
-			})
+			});
 			
 			$('<div id="title" style="font-weight:bold;">' + event.title + '</div>').appendTo($tooltip);
 			$('<div id="type" style="font-style:italic;">Type: ' + event.eventType + '</div>').appendTo($tooltip);
@@ -285,7 +283,7 @@
 					marker.css({
 						"top": top-markerSize-8 +"px",
 						"border-top": "none",
-						"border-bottom": markerSize+"px solid " + color,
+						"border-bottom": markerSize+"px solid " + color
 					});
 				} else {
 					marker.css({
@@ -388,6 +386,13 @@
 			
 			that.eventMarkers.drawEvents();
 		};
+
+		// change events on an existing plot
+		plot.setEvents = function(events){
+			if (eventMarkers.eventsEnabled) {
+				eventMarkers.setupEvents(events);
+			}
+		};
 		
 		plot.hooks.processOptions.push(function(plot, options){
 			// enable the plugin
@@ -396,9 +401,8 @@
 			}
 		});
 		
-		plot.hooks.draw.push(function(plot, canvascontext){
+		plot.hooks.draw.push(function(plot){
 			var options = plot.getOptions();
-			var xaxis = plot.getXAxes()[options.events.xaxis - 1];
 			
 			if (eventMarkers.eventsEnabled) {
 				// check for first run
@@ -412,8 +416,7 @@
 			
 			eventMarkers.drawEvents();
 		});
-		
-	};
+	}
 	
 	var defaultOptions = {
 		events: {
