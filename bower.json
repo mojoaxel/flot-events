@@ -21,7 +21,7 @@
   ],
   "license": [ 
     "MIT", 
-    "GPL-2.0+" ],
+    "GPL-2.0-or-later" ],
   "ignore": [
     "**/.*",
     "server.js"
